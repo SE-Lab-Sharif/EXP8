@@ -18,4 +18,30 @@
 ...
 
 ## بخش سوم - تحلیل الگوی Strategy
-...
+
+### سوال ۱:‌استفاده از این الگو به چه علت قابل قبول است؟
+توجه کنید که الگوی Strategy در اینجا مناسب است زیرا ما روش‌های متفاوتی برای traverse کردن و پیمایش یک گراف داریم. ضمنا، ممکن است در ادامه‌ی develop و maintain این پروژه، بخواهیم روش‌های جدیدتر و به‌روزتر را بنابر نیاز پیاده سازی و استفاده کنیم (در جاهای مختلفی). این یعنی، ما باید یک interface واحد داشته باشیم که به ما اجازه بدهد تا هر کلاسی که خواستیم تعریف کنیم‌(از یک الگوریتم جدید traverse) بتوانیم با این interface آنرا توصیف کنیم و درواقع از این interface استفاده (implement) کنیم. در اینجا، interface ما بصورت زیر است:
+
+```java
+public interface Traverser {
+    List<Integer> traverse(Integer startVertex);
+}
+```
+
+حالا، با استفاده از این interface می‌توانیم روش‌های مختلف traverse گراف را پیاده‌سازی کنیم و از هر روشی در هرجایی بنابر نیاز استفاده کنیم (استراتژی‌های مختلف برای انجام پیمایش گراف). درنتیجه، در اینجا استفاده از الگوی Strategy منطقی است.
+
+### سوال ۲: روش تحقق این الگو را به صورت مختصر توضیح دهید.
+همانطور که پیش‌تر اشاره شد، برای تحقق این الگو، یک interface برای توضیف انواع روش های پیمایش می خواهیم که `Traverser` نام دارد و یک تابع دارد که `traverse` نام دارد. این تابع، بعنوان ورودی یک راس از گراف را می‌گیرد (index یا شماره‌ی آن) و از آن راس شروع به پیمایش می کند. ضمنا خروجی آن، لیست شماره‌ی رئوسی است که در این پیمایش به ترتیب دیده شده‌اند. (به ترتیب) حالا، باید روش‌های مختلف پیمایش را که در اینجا مثلا BFS و DFS هستند با استفاده از این ineterface (و implement کردن آن) پیاده‌سازی کنیم. در نهایت، در هرجای برنامه که نیاز به یک یا چند نوع از این traverser ها داشتیم، از انها می‌توانیم استفاده کنیم. مثلا در Main داریم:
+
+```java
+Traverser dfsGraphTraveler= new DfsGraphTraverser(graph);
+Traverser bfsGraphTraveler= new BfsGraphTraverser(graph);
+
+List<Integer> dfsPath = dfsGraphTraveler.traverse(1);
+List<Integer> bfsTraveler = bfsGraphTraveler.traverse(1);
+
+System.out.println("Graph-DFS From node 1 is : " + dfsPath);
+System.out.println("Graph-BFS From node 1 is : " + bfsTraveler);
+```
+
+### توضیحاتی اضافه‌تر درمورد استفاده از Strategy
