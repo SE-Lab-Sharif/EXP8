@@ -1,7 +1,7 @@
-package org.example.AdapterImplementation.graphTravelers;
+package org.example.LibraryChange.graphTravelers;
 
 
-import org.example.AdapterImplementation.Graph.Graph;
+import org.example.LibraryChange.Graph.Graph;
 
 import java.util.*;
 
