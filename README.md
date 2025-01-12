@@ -12,10 +12,78 @@
 ## بخش دوم - تغییر کتابخانه
 
 ### زیربخش ۱
-...
+
+در اینجا می‌توانید کد تغییر یافته کتابخانه را ببینید:
+
+```java
+package org.example.LibraryChange.Graph;
+
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleDirectedGraph;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+public class GraphAdapter<V> implements Graph<V> {
+  private final SimpleDirectedGraph<V, String> graph;
+  private int edgeCount = 0;
+
+  public GraphAdapter() {
+    this.graph = new SimpleDirectedGraph<>(String.class);
+  }
+
+  @Override
+  public void addVertex(V vertex) {
+    graph.addVertex(vertex);
+  }
+
+  @Override
+  public void addEdge(String name, V source, V destination) {
+    if (graph.containsEdge(name)) {
+      throw new IllegalArgumentException("Edge with name " + name + " already exists");
+    }
+    if (name == null) {
+      name = "Edge" + edgeCount++;
+    }
+    graph.addEdge(source, destination, name);
+  }
+
+  @Override
+  public List<V> getNeighbors(V vertex) {
+    Set<String> outgoingEdges = graph.outgoingEdgesOf(vertex);
+    Set<String> incomingEdges = graph.incomingEdgesOf(vertex);
+    List<V> neighbors = new ArrayList<>();
+    for (String edge : outgoingEdges) {
+      neighbors.add(graph.getEdgeTarget(edge));
+    }
+    for (String edge : incomingEdges) {
+      neighbors.add(graph.getEdgeSource(edge));
+    }
+    return neighbors;
+  }
+}
+```
+
+همانطور که مشاهده می‌کنید تنها قسمتی از پروژه که تغییر می‌کند کلاس `GraphAdapter` است. این کلاس از کتابخانه JGraphT استفاده می‌کند و توابع مورد نیاز را برای پیاده‌سازی گراف ارائه می‌دهد. این دقیقا همان خواسته ما از الگوی `Adapter` است.
 
 ### زیربخش ۲
-...
+
+برای جایگزینی کتابخانه JUNG با JGraphT در پیاده‌سازی خود، لازم است ساختار داده‌ها و متدها را متناسب با آن تنظیم کنیم. در اینجا پیاده‌سازی به‌روز شده ارائه شده است:
+
+### تغییرات کلیدی:
+1. **ساختار گراف**:
+- جایگزینی `SparseMultigraph` از JUNG با `SimpleDirectedGraph` از JGraphT.
+- استفاده از `String` به‌عنوان نوع یال‌ها.
+
+2. **مدیریت یال‌ها**:
+- JGraphT نیازمند شناسه‌های یکتا برای یال‌ها است (برای مثال، در اینجا از `String` استفاده شده است). نام‌های یال به‌صورت دستی تعیین یا به‌صورت خودکار تولید می‌شوند.
+
+3. **بازیابی همسایگان**:
+- استفاده از `outgoingEdgesOf` برای بازیابی یال‌هایی که از رأس مشخصی شروع می‌شوند.
+- استفاده از `incomingEdgesOf` برای بازیابی یال‌هایی که به رأس مشخصی می‌رسند.
+- تبدیل مجموعه‌ی یال‌ها به لیستی از رأس‌های همسایه با استفاده از `getEdgeTarget`.
+
 
 ## بخش سوم - تحلیل الگوی Strategy
 
@@ -24,7 +92,7 @@
 
 ```java
 public interface Traverser {
-    List<Integer> traverse(Integer startVertex);
+  List<Integer> traverse(Integer startVertex);
 }
 ```
 
@@ -52,7 +120,7 @@ System.out.println("Graph-BFS From node 1 is : " + bfsTraveler);
 
 - Encapsulation
 
-هر روش پیمایش، توسط کلاسی که آنرا توصیف می‌کند encapsulate شده است. همچنین، جزئیات پیاده‌سازی هر روش پیمایش از دید کاربر مخفی است و کاربر فقط با استفاده از interface `Traverser` می‌تواند از آن استفاده کند. 
+هر روش پیمایش، توسط کلاسی که آنرا توصیف می‌کند encapsulate شده است. همچنین، جزئیات پیاده‌سازی هر روش پیمایش از دید کاربر مخفی است و کاربر فقط با استفاده از interface `Traverser` می‌تواند از آن استفاده کند.
 
 - Extensibility
 
@@ -67,25 +135,25 @@ System.out.println("Graph-BFS From node 1 is : " + bfsTraveler);
 ```java
 
 class NewGraphTraverser implements Traverser {
-    private Graph graph;
+  private Graph graph;
 
-    public NewGraphTraverser(Graph graph) {
-        this.graph = graph;
+  public NewGraphTraverser(Graph graph) {
+    this.graph = graph;
+  }
+
+  @Override
+  public List<Integer> traverse(Integer startVertex) {
+    // A dummy algorithm for example
+    List<Integer> path = new ArrayList<>();
+    path.add(startVertex);
+
+    for (int i = 0; i < graph.getVertexCount(); i++) {
+      if (i != startVertex && graph.isAdjacent(startVertex, i)) {
+        path.add(i);
+      }
     }
-
-    @Override
-    public List<Integer> traverse(Integer startVertex) {
-        // A dummy algorithm for example
-        List<Integer> path = new ArrayList<>();
-        path.add(startVertex);
-
-        for (int i = 0; i < graph.getVertexCount(); i++) {
-            if (i != startVertex && graph.isAdjacent(startVertex, i)) {
-                path.add(i);
-            }
-        }
-        return path;
-    }
+    return path;
+  }
 }
 ```
 
